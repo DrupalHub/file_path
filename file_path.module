@@ -34,10 +34,20 @@ function file_path_permissions() {
  * Implements hook_element_info().
  */
 function file_path_element_info() {
+  $url = url('file_path/autocomplete', array('absolute' => TRUE));
   $types['file_path'] = array(
     '#input' => TRUE,
     '#theme' => array('textfield'),
     '#autocomplete_path' => 'file_path/autocomplete',
+    '#attached' => array(
+      'js' => array(
+        drupal_get_path('module', 'file_path') . '/js/file_path.js',
+        array(
+          'type' => 'setting',
+          'data' => array('filePath' => array('url' => $url)),
+        ),
+      ),
+    ),
     '#theme_wrappers' => array('form_element'),
   );
   return $types;
@@ -49,14 +59,18 @@ function file_path_element_info() {
 function file_path_autocomplete($string = '') {
   $matches = array();
 
+  $string = str_replace("*", "/", $string);
 
-  foreach (new DirectoryIterator(DRUPAL_ROOT) as $fileInfo) {
-    if ($fileInfo->isDot()) {
-      continue;
+  try {
+    foreach (new DirectoryIterator($string) as $fileInfo) {
+      if ($fileInfo->isDot()) {
+        continue;
+      }
+      $matches[$fileInfo->getPathname()] = $fileInfo->getFilename();
     }
 
-    $matches[$fileInfo->getFilename()] = $fileInfo->getFilename();
+    drupal_json_output($matches);
+  } catch (Exception $e) {
+    drupal_set_message($e->getMessage());
   }
-
-  drupal_json_output($matches);
 }
