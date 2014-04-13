@@ -1,0 +1,51 @@
+<?php
+/**
+ * @file
+ * file_path.module
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function file_path_menu() {
+  $items = array();
+
+  $items['file_path'] = array(
+    'title' => 'File path auto complete',
+    'access arguments' => array('access file path auto complete'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permissions().
+ */
+function file_path_permissions() {
+  return array(
+    'access file path auto complete' => array(
+      'title' => t('Grant access to file path auto complete'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_element_info().
+ */
+function file_path_element_info() {
+  $types['file_path'] = array(
+    '#input' => TRUE,
+    '#process' => array('file_path_element_process'),
+  );
+  return $types;
+}
+
+/**
+ * Process callback.
+ */
+function file_path_element_process($element, &$form_state, $form) {
+  return array(
+    '#type' => 'textfield',
+    '#autocomplete_path' => 'file_path/autocomplete',
+  );
+}
