@@ -36,19 +36,11 @@ function file_path_permissions() {
 function file_path_element_info() {
   $types['file_path'] = array(
     '#input' => TRUE,
-    '#process' => array('file_path_element_process'),
+    '#theme' => array('textfield'),
+    '#autocomplete_path' => 'file_path/autocomplete',
+    '#theme_wrappers' => array('form_element'),
   );
   return $types;
-}
-
-/**
- * Process callback.
- */
-function file_path_element_process($element, &$form_state, $form) {
-  return array(
-    '#type' => 'textfield',
-    '#autocomplete_path' => 'file_path/autocomplete',
-  );
 }
 
 /**
@@ -56,11 +48,14 @@ function file_path_element_process($element, &$form_state, $form) {
  */
 function file_path_autocomplete($string = '') {
   $matches = array();
-  if ($string) {
-    $result = db_select('users')->fields('users', array('name'))->condition('name', db_like($string) . '%', 'LIKE')->range(0, 10)->execute();
-    foreach ($result as $user) {
-      $matches[$user->name] = check_plain($user->name);
+
+
+  foreach (new DirectoryIterator(DRUPAL_ROOT) as $fileInfo) {
+    if ($fileInfo->isDot()) {
+      continue;
     }
+
+    $matches[$fileInfo->getFilename()] = $fileInfo->getFilename();
   }
 
   drupal_json_output($matches);
