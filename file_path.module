@@ -34,17 +34,17 @@ function file_path_permissions() {
  * Implements hook_element_info().
  */
 function file_path_element_info() {
-  $url = url('file_path/autocomplete', array('absolute' => TRUE));
   $types['file_path'] = array(
     '#input' => TRUE,
     '#theme' => array('textfield'),
+    '#size' => 50,
     '#autocomplete_path' => 'file_path/autocomplete',
     '#attached' => array(
       'js' => array(
         drupal_get_path('module', 'file_path') . '/js/file_path.js',
         array(
           'type' => 'setting',
-          'data' => array('filePath' => array('url' => $url)),
+          'data' => array('filePath' => array('url' => url('file_path/autocomplete', array('absolute' => TRUE)))),
         ),
       ),
     ),
@@ -58,15 +58,30 @@ function file_path_element_info() {
  */
 function file_path_autocomplete($string = '') {
   $matches = array();
-
   $string = str_replace("*", "/", $string);
+  $explode = explode('/', $string);
+
+  if (!file_Exists($string)) {
+    if (count($explode)) {
+      // The user is the root. Supply the root folder path.
+      $string = DRUPAL_ROOT;
+    }
+  }
 
   try {
     foreach (new DirectoryIterator($string) as $fileInfo) {
       if ($fileInfo->isDot()) {
         continue;
       }
-      $matches[$fileInfo->getPathname()] = $fileInfo->getFilename();
+
+      $last = end($explode);
+
+      if (!empty($last) && strpos($fileInfo->getFilename(), $last) === FALSE) {
+        continue;
+      }
+
+      $path = count($explode) == 1 ? $fileInfo->getFilename() : $fileInfo->getPathname();
+      $matches[$path] = $fileInfo->getFilename();
     }
 
     drupal_json_output($matches);
