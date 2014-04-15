@@ -63,7 +63,8 @@ function file_path_autocomplete($string = '') {
 
   if (!file_Exists($string)) {
     if (count($explode)) {
-      // The user is the root. Supply the root folder path.
+      // The user is in the first hierarchy of file. Supply the root folder
+      // path.
       $string = DRUPAL_ROOT;
     }
   }
@@ -77,6 +78,7 @@ function file_path_autocomplete($string = '') {
       $last = end($explode);
 
       if (!empty($last) && strpos($fileInfo->getFilename(), $last) === FALSE) {
+        // Skipping - The file name don't contain part of the given path.
         continue;
       }
 
@@ -86,6 +88,7 @@ function file_path_autocomplete($string = '') {
 
     drupal_json_output($matches);
   } catch (Exception $e) {
-    drupal_set_message($e->getMessage());
+    // Save the errors fot later debugging.
+    watchdog('file_path', $e->getMessage());
   }
 }
