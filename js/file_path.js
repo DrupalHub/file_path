@@ -18,7 +18,7 @@
 
           // Replace the "/" in the word with another character and create a new
           // XMLHTTPRequest request.
-          jqXHR.open("GET", settings.filePath.url + "/" + userSearch.replace("/", "*"), true);
+          jqXHR.open("GET", settings.filePath.url + "/" + userSearch.split("/").join("*"), true);
         }
       });
     }
