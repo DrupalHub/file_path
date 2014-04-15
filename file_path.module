@@ -77,7 +77,8 @@ function file_path_autocomplete($string = '') {
 
       $last = end($explode);
 
-      if (!empty($last) && strpos($fileInfo->getFilename(), $last) === FALSE) {
+      // todo: Don't work with sites/all/modules - check this why.
+      if (!empty($last) && !$fileInfo->getFilename() && strpos($fileInfo->getFilename(), $last) === FALSE) {
         // Skipping - The file name don't contain part of the given path.
         continue;
       }
